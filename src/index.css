@@ -1,0 +1,113 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
+
+@layer base {
+  :root {
+    --background: 253 246 236; /* Warm cream background */
+    --foreground: 65 39 24; /* Dark brown text */
+
+    --card: 255 255 255;
+    --card-foreground: 65 39 24;
+
+    --popover: 255 255 255;
+    --popover-foreground: 65 39 24;
+
+    --primary: 23 132 163; /* Spiritual blue */
+    --primary-foreground: 255 255 255;
+
+    --secondary: 253 224 178;
+    --secondary-foreground: 65 39 24;
+
+    --muted: 250 240 230;
+    --muted-foreground: 115 85 70;
+
+    --accent: 255 153 51; /* Saffron */
+    --accent-foreground: 255 255 255;
+
+    --destructive: 220 38 38;
+    --destructive-foreground: 254 242 242;
+
+    --border: 240 215 185;
+    --input: 240 215 185;
+    --ring: 23 132 163;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 39 25 16;
+    --foreground: 253 246 236;
+
+    --card: 45 31 22;
+    --card-foreground: 253 246 236;
+
+    --popover: 45 31 22;
+    --popover-foreground: 253 246 236;
+
+    --primary: 135 206 235;
+    --primary-foreground: 39 25 16;
+
+    --secondary: 55 41 32;
+    --secondary-foreground: 253 246 236;
+
+    --muted: 55 41 32;
+    --muted-foreground: 185 165 145;
+
+    --accent: 255 153 51;
+    --accent-foreground: 39 25 16;
+
+    --destructive: 220 38 38;
+    --destructive-foreground: 254 242 242;
+
+    --border: 70 56 47;
+    --input: 70 56 47;
+    --ring: 135 206 235;
+
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/* Custom gradient backgrounds for spiritual theme */
+.spiritual-gradient {
+  background: linear-gradient(135deg, #FFF8F0 0%, #FFE4B5 50%, #F0F8FF 100%);
+}
+
+.saffron-gradient {
+  background: linear-gradient(135deg, #FF9933 0%, #FFB84D 100%);
+}
+
+.spiritual-card {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(255, 153, 51, 0.1);
+}

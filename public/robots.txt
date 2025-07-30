@@ -1,0 +1,40 @@
+User-agent: Googlebot
+Disallow: /music/
+Disallow: /category/
+Disallow: /artists/
+Disallow: /page/
+Disallow: /recruit/
+Disallow: /musics/
+Disallow: /shopdetail/
+Disallow: /index.phpsshopdetail/
+Allow: /
+
+User-agent: Bingbot
+Disallow: /music/
+Disallow: /category/
+Disallow: /artists/
+Disallow: /page/
+Disallow: /recruit/
+Disallow: /musics/
+Disallow: /shopdetail/
+Disallow: /index.phpsshopdetail/
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Disallow: /music/
+Disallow: /category/
+Disallow: /artists/
+Disallow: /page/
+Disallow: /musics/
+Disallow: /recruit/
+Disallow: /shopdetail/
+Disallow: /index.phpsshopdetail/
+Allow: /
+
+Sitemap: https://jugaadcore.com/sitemap.xml
