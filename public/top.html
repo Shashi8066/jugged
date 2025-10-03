@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Reset</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: #6a11cb;
+            box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.2);
+            outline: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .resend-otp {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .resend-otp a {
+            color: #6a11cb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .resend-otp a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .message.success {
+            background-color: #e6f7ee;
+            color: #0d6832;
+            border: 1px solid #a3e9c1;
+            display: block;
+        }
+
+        .message.error {
+            background-color: #fde8e8;
+            color: #c53030;
+            border: 1px solid #fbb6b6;
+            display: block;
+        }
+
+        .message.info {
+            background-color: #e1f0ff;
+            color: #1e4e8c;
+            border: 1px solid #a3c9ff;
+            display: block;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .step-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ddd;
+            margin: 0 8px;
+            transition: all 0.3s;
+        }
+
+        .step-dot.active {
+            background-color: #6a11cb;
+            transform: scale(1.2);
+        }
+
+        .password-requirements {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .password-strength {
+            height: 4px;
+            background-color: #eee;
+            border-radius: 2px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .password-strength.weak .password-strength-bar {
+            background-color: #e74c3c;
+            width: 33%;
+        }
+
+        .password-strength.medium .password-strength-bar {
+            background-color: #f39c12;
+            width: 66%;
+        }
+
+        .password-strength.strong .password-strength-bar {
+            background-color: #2ecc71;
+            width: 100%;
+        }
+
+        #recaptcha-container {
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Reset Your Password</h1>
+            <p>Enter your phone number to receive a verification code</p>
+        </div>
+
+        <div class="step-indicator">
+            <div class="step-dot active" id="step1-dot"></div>
+            <div class="step-dot" id="step2-dot"></div>
+            <div class="step-dot" id="step3-dot"></div>
+        </div>
+
+        <div class="form-container">
+            <div id="message" class="message"></div>
+
+            <!-- Step 1: Enter Phone Number -->
+            <div class="step active" id="step1">
+                <div id="recaptcha-container"></div>
+                <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" placeholder="Enter your phone number with country code (e.g., +1234567890)" required>
+                </div>
+                <button class="btn" id="sendOtpBtn">Send Verification Code</button>
+            </div>
+
+            <!-- Step 2: Enter OTP -->
+            <div class="step" id="step2">
+                <div class="form-group">
+                    <label for="otp">Verification Code</label>
+                    <input type="text" id="otp" placeholder="Enter the 6-digit code" maxlength="6" required>
+                </div>
+                <button class="btn" id="verifyOtpBtn">Verify Code</button>
+                <div class="resend-otp">
+                    Didn't receive the code? <a id="resendOtp">Resend</a>
+                </div>
+            </div>
+
+            <!-- Step 3: Enter New Password -->
+            <div class="step" id="step3">
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input type="password" id="newPassword" placeholder="Enter your new password" required>
+                    <div class="password-requirements">
+                        Password must be at least 8 characters with uppercase, lowercase, and a number.
+                    </div>
+                    <div class="password-strength" id="passwordStrength">
+                        <div class="password-strength-bar"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm your new password" required>
+                </div>
+                <button class="btn" id="resetPasswordBtn">Reset Password</button>
+            </div>
+
+            <!-- Step 4: Success Message -->
+            <div class="step" id="step4">
+                <div class="message success">
+                    <strong>Success!</strong> Your password has been reset successfully.
+                </div>
+                <div class="form-group" style="text-align: center; margin-top: 20px;">
+                    <p>You can now log in with your new password.</p>
+                    <button class="btn" id="loginBtn" style="margin-top: 15px;">Go to Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDAQfnyx0wkDYoVn-OWNr5M0eULqhvAOlM",
+            authDomain: "subscription-566cc.firebaseapp.com",
+            projectId: "subscription-566cc",
+            storageBucket: "subscription-566cc.firebasestorage.app",
+            messagingSenderId: "171668339039",
+            appId: "1:171668339039:web:40ed23293ef11f46ac9eea",
+            measurementId: "G-288SMEH2PJ"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+
+        // DOM Elements
+        const steps = document.querySelectorAll('.step');
+        const stepDots = document.querySelectorAll('.step-dot');
+        const messageDiv = document.getElementById('message');
+        const phoneNumberInput = document.getElementById('phoneNumber');
+        const sendOtpBtn = document.getElementById('sendOtpBtn');
+        const otpInput = document.getElementById('otp');
+        const verifyOtpBtn = document.getElementById('verifyOtpBtn');
+        const resendOtpLink = document.getElementById('resendOtp');
+        const newPasswordInput = document.getElementById('newPassword');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+        const loginBtn = document.getElementById('loginBtn');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const recaptchaContainer = document.getElementById('recaptcha-container');
+
+        // Application state
+        let confirmationResult = null;
+        let phoneNumber = '';
+        let recaptchaVerifier = null;
+        let recaptchaWidgetId = null;
+
+        // Initialize reCAPTCHA
+        function initializeRecaptcha() {
+            recaptchaVerifier = new firebase.auth.RecaptchaVerifier(recaptchaContainer, {
+                'size': 'normal',
+                'callback': (response) => {
+                    // reCAPTCHA solved, allow sendOtp
+                    sendOtpBtn.disabled = false;
+                },
+                'expired-callback': () => {
+                    // Reset when reCAPTCHA response expires
+                    sendOtpBtn.disabled = true;
+                    showMessage('reCAPTCHA verification expired. Please verify again.', 'error');
+                }
+            });
+
+            recaptchaWidgetId = recaptchaVerifier.render();
+        }
+
+        // Show message function
+        function showMessage(text, type) {
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            // Auto hide success messages after 5 seconds
+            if (type === 'success') {
+                setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Move to step function
+        function goToStep(stepNumber) {
+            steps.forEach(step => step.classList.remove('active'));
+            stepDots.forEach(dot => dot.classList.remove('active'));
+            
+            document.getElementById(`step${stepNumber}`).classList.add('active');
+            document.getElementById(`step${stepNumber}-dot`).classList.add('active');
+        }
+
+        // Validate phone number
+        function validatePhoneNumber(phone) {
+            // E.164 format validation
+            const phoneRegex = /^\+[1-9]\d{1,14}$/;
+            return phoneRegex.test(phone);
+        }
+
+        // Check password strength
+        function checkPasswordStrength(password) {
+            let strength = 0;
+            
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^a-zA-Z0-9]/.test(password)) strength++;
+            
+            passwordStrength.className = 'password-strength';
+            if (password.length > 0) {
+                if (strength <= 2) {
+                    passwordStrength.classList.add('weak');
+                } else if (strength <= 4) {
+                    passwordStrength.classList.add('medium');
+                } else {
+                    passwordStrength.classList.add('strong');
+                }
+            }
+        }
+
+        // Reset reCAPTCHA
+        function resetRecaptcha() {
+            if (recaptchaVerifier) {
+                recaptchaVerifier.clear();
+                recaptchaContainer.innerHTML = '';
+            }
+            initializeRecaptcha();
+        }
+
+        // Send OTP to phone number
+        sendOtpBtn.addEventListener('click', async () => {
+            const phone = phoneNumberInput.value.trim();
+            
+            if (!validatePhoneNumber(phone)) {
+                showMessage('Please enter a valid phone number with country code (e.g., +1234567890)', 'error');
+                return;
+            }
+            
+            sendOtpBtn.disabled = true;
+            sendOtpBtn.textContent = 'Sending...';
+            
+            try {
+                phoneNumber = phone;
+                
+                // Send OTP using Firebase Authentication
+                confirmationResult = await auth.signInWithPhoneNumber(phone, recaptchaVerifier);
+                
+                showMessage('Verification code sent to your phone', 'success');
+                goToStep(2);
+                
+                // Reset reCAPTCHA for resend functionality
+                resetRecaptcha();
+                
+            } catch (error) {
+                console.error('Error sending OTP:', error);
+                
+                // Reset reCAPTCHA on error
+                resetRecaptcha();
+                
+                let errorMessage = 'Failed to send verification code. ';
+                
+                switch (error.code) {
+                    case 'auth/invalid-phone-number':
+                        errorMessage += 'Invalid phone number format.';
+                        break;
+                    case 'auth/quota-exceeded':
+                        errorMessage += 'SMS quota exceeded. Please try again later.';
+                        break;
+                    case 'auth/user-disabled':
+                        errorMessage += 'This account has been disabled.';
+                        break;
+                    case 'auth/operation-not-allowed':
+                        errorMessage += 'Phone authentication is not enabled. Please contact support.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                sendOtpBtn.disabled = false;
+                sendOtpBtn.textContent = 'Send Verification Code';
+            }
+        });
+
+        // Verify OTP
+        verifyOtpBtn.addEventListener('click', async () => {
+            const otp = otpInput.value.trim();
+            
+            if (otp.length !== 6) {
+                showMessage('Please enter the 6-digit verification code', 'error');
+                return;
+            }
+            
+            verifyOtpBtn.disabled = true;
+            verifyOtpBtn.textContent = 'Verifying...';
+            
+            try {
+                // Verify the OTP
+                const result = await confirmationResult.confirm(otp);
+                const user = result.user;
+                
+                showMessage('Phone number verified successfully', 'success');
+                goToStep(3);
+            } catch (error) {
+                console.error('Error verifying OTP:', error);
+                
+                let errorMessage = 'Invalid verification code. ';
+                
+                switch (error.code) {
+                    case 'auth/invalid-verification-code':
+                        errorMessage += 'The code you entered is incorrect.';
+                        break;
+                    case 'auth/code-expired':
+                        errorMessage += 'The code has expired. Please request a new one.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                verifyOtpBtn.disabled = false;
+                verifyOtpBtn.textContent = 'Verify Code';
+            }
+        });
+
+        // Resend OTP
+        resendOtpLink.addEventListener('click', async () => {
+            if (!phoneNumber) {
+                showMessage('Please enter your phone number again', 'error');
+                goToStep(1);
+                return;
+            }
+            
+            resendOtpLink.textContent = 'Sending...';
+            
+            try {
+                // Wait for reCAPTCHA to be solved
+                if (!recaptchaVerifier.verify()) {
+                    showMessage('Please complete the reCAPTCHA verification', 'error');
+                    return;
+                }
+                
+                confirmationResult = await auth.signInWithPhoneNumber(phoneNumber, recaptchaVerifier);
+                showMessage('Verification code resent to your phone', 'success');
+                
+                // Reset reCAPTCHA for future use
+                resetRecaptcha();
+                
+            } catch (error) {
+                console.error('Error resending OTP:', error);
+                
+                // Reset reCAPTCHA on error
+                resetRecaptcha();
+                
+                let errorMessage = 'Failed to resend verification code. ';
+                
+                switch (error.code) {
+                    case 'auth/invalid-phone-number':
+                        errorMessage += 'Invalid phone number format.';
+                        break;
+                    case 'auth/quota-exceeded':
+                        errorMessage += 'SMS quota exceeded. Please try again later.';
+                        break;
+                    default:
+                        errorMessage += error.message;
+                }
+                
+                showMessage(errorMessage, 'error');
+            } finally {
+                resendOtpLink.textContent = 'Resend';
+            }
+        });
+
+        // Reset password
+        resetPasswordBtn.addEventListener('click', async () => {
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (newPassword !== confirmPassword) {
+                showMessage('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 8) {
+                showMessage('Password must be at least 8 characters long', 'error');
+                return;
+            }
+            
+            // Check password strength requirements
+            if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(newPassword)) {
+                showMessage('Password must contain at least one uppercase letter, one lowercase letter, and one number', 'error');
+                return;
+            }
+            
+            resetPasswordBtn.disabled = true;
+            resetPasswordBtn.textContent = 'Resetting...';
+            
+            try {
+                // Get the current user
+                const user = auth.currentUser;
+                
+                if (!user) {
+                    throw new Error('User not authenticated');
+                }
+                
+                // Update password
+                await user.updatePassword(newPassword);
+                
+                showMessage('Password reset successfully', 'success');
+                goToStep(4);
+            } catch (error) {
+                console.error('Error resetting password:', error);
+                showMessage(`Failed to reset password: ${error.message}`, 'error');
+            } finally {
+                resetPasswordBtn.disabled = false;
+                resetPasswordBtn.textContent = 'Reset Password';
+            }
+        });
+
+        // Go to login
+        loginBtn.addEventListener('click', () => {
+            // In a real application, you would redirect to the login page
+            alert('Redirecting to login page...');
+            // window.location.href = '/login';
+        });
+
+        // Password strength indicator
+        newPasswordInput.addEventListener('input', () => {
+            checkPasswordStrength(newPasswordInput.value);
+        });
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeRecaptcha();
+            sendOtpBtn.disabled = true; // Disable until reCAPTCHA is solved
+        });
+    </script>
+</body>
+</html>
